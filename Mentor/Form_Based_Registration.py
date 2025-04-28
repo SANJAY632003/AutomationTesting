@@ -1,16 +1,12 @@
 from playwright.sync_api import sync_playwright
 from time import sleep
-import data
 from data import EXEC_PATH, SITE_URL
-import pyperclip
+from Functionalities import login, logout, setup, invite_friends
+import data, pyperclip
 
 with (sync_playwright() as play):
     #setting up
-    browser = play.chromium.launch(executable_path=EXEC_PATH, headless=False, args=['--start-maximized'])
-    context = browser.new_context(no_viewport=True)
-
-    tab = context.new_page()
-    tab.goto(url=SITE_URL)
+    browser, context, tab = setup(play)
 
     signup_form = data.FORM_BASED_REGISTRATION
 
@@ -39,13 +35,8 @@ with (sync_playwright() as play):
     sleep(2)
 
     #Login
-    tab.type(selector='input[type="email"]', text=signup_form['mail_id'], delay=100)
-    sleep(0.5)
-    tab.type(selector='input[type="password"]', text=signup_form['password'], delay=100)
-    sleep(0.2)
-    tab.press(selector='button[type="submit"]', key="Enter")  # "Enter" -> keyboard key
+    login(tab, signup_form['mail_id'], signup_form['password'])
     sleep(3)
-
 
     #Navigating to Form
     tab.get_by_text(text='Mentor').click()
@@ -115,11 +106,7 @@ with (sync_playwright() as play):
                 sleep(5)
 
                 # Login
-                tab.type(selector='input[type="email"]', text=signup_form['mail_id'], delay=100)
-                sleep(0.5)
-                tab.type(selector='input[type="password"]', text=signup_form['password'], delay=100)
-                sleep(0.2)
-                tab.press(selector='button[type="submit"]', key="Enter")  # "Enter" -> keyboard key
+                login(tab, signup_form['mail_id'], signup_form['password'])
                 sleep(3)
 
                 #Fill required fields alone
@@ -137,11 +124,7 @@ with (sync_playwright() as play):
                 sleep(2)
 
                 #Login
-                tab.type(selector='input[type="email"]', text=signup_form['mail_id'], delay=100)
-                sleep(0.5)
-                tab.type(selector='input[type="password"]', text=signup_form['password'], delay=100)
-                sleep(0.2)
-                tab.press(selector='button[type="submit"]', key="Enter")  # "Enter" -> keyboard key
+                login(tab, signup_form['mail_id'], signup_form['password'])
 
                 #Pausing automation for manually filling form fields
                 tab.pause()
@@ -152,22 +135,11 @@ with (sync_playwright() as play):
             sleep(5)
 
             #Invite Friends
-            tab.get_by_text(text='Invite friends').click()
-            sleep(2)
-            tab.type(selector='textarea[name="recipients"]', text=f'{data.MENTOR_MAIL_ID}, {data.MENTEE_MAIL_ID}', delay=100)
-            sleep(2)
-            tab.locator(selector='img[alt="Copy link"]').click()
-            print(f'Copied link: {pyperclip.paste()}')
-            sleep(2)
-            tab.get_by_text(text='Send Invites').click()
+            invite_friends(tab)
             sleep(2)
 
             #Logout
-            tab.locator(selector='img[class="MuiAvatar-img css-1hy9t21"]').click()
-            sleep(0.5)
-            tab.locator(selector='img[alt="LogoutIcon"]').click()
-            sleep(1.5)
-            tab.get_by_text(text='Logout', exact=True).first.click()
+            logout(tab)
             sleep(3)
             browser.close()
             break

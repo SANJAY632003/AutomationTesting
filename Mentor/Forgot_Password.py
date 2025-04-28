@@ -1,17 +1,14 @@
 from playwright.sync_api import sync_playwright
 from time import sleep
+from Functionalities import login, logout, setup
 import data
 
 with sync_playwright() as play:
-    #seting up
-    browser = play.chromium.launch(executable_path=data.EXEC_PATH, headless=False, args=["--start-maximized"])
-    context = browser.new_context(no_viewport=True)
+    #setup
+    browser, context, tab = setup(play)
     mail_id = data.MENTOR_MAIL_ID
 
     #Forgot password
-    tab = context.new_page()
-    tab.goto(url=data.SITE_URL)
-    sleep(0.5)
     tab.press(selector='button[type="button"][class="text-[12px]  "]',key="Enter")
     sleep(0.5)
     tab.type(selector='input[type="text"]', text=mail_id, delay=100)
@@ -42,10 +39,12 @@ with sync_playwright() as play:
     tab.press(selector='button[type="submit"]', key="Enter")
     sleep(0.5)
 
-    #Login
-    tab.type(selector='input[type="email"]', text=mail_id, delay=100)
-    sleep(0.5)
-    tab.type(selector='input[type="password"]', text=password, delay=100)
-    sleep(0.2)
-    tab.press(selector='button[type="submit"]', key="Enter")  # "Enter" -> keyboard key
-    sleep(10)
+    # login
+    login(tab, mail_id, password)
+    sleep(2)
+
+    # logout
+    logout(tab)
+    sleep(2)
+
+    browser.close()
