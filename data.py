@@ -72,3 +72,6 @@ ADD_USER = {
     "secondary":"2345678901",
     "role":"Mentor"
 }
+
+#User Account Actions by Admin
+ACCOUNT_ACTION_MAIL_ID = 'testmentee6@gmail.com'
